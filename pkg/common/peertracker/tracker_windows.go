@@ -8,7 +8,6 @@ import (
 	"sync"
 
 	"github.com/sirupsen/logrus"
-	"github.com/spiffe/spire/pkg/common/telemetry"
 	"golang.org/x/sys/windows"
 )
 
@@ -24,7 +23,7 @@ type windowsTracker struct {
 
 func newTracker(log logrus.FieldLogger) (*windowsTracker, error) {
 	return &windowsTracker{
-		log: log.WithField(telemetry.Type, windowsType),
+		log: log.WithField("type", windowsType),
 		sc:  &systemCall{},
 	}, nil
 }
@@ -91,7 +90,7 @@ func (t *windowsTracker) newWindowsWatcher(info CallerInfo, log logrus.FieldLogg
 	}
 
 	log = log.WithFields(logrus.Fields{
-		telemetry.PID: info.PID,
+		"pid": info.PID,
 	})
 
 	return &windowsWatcher{

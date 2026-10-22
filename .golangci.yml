@@ -1,44 +1,76 @@
+version: "2"
 run:
   # timeout for analysis, e.g. 30s, 5m, default is 1m
   timeout: 12m
-
-issues:
-  exclude-dirs:
-    - testdata$
-    - test/mock
-  exclude-files:
-    - ".*\\.pb\\.go"
-
 linters:
   enable:
     - bodyclose
+    - copyloopvar
     - durationcheck
     - errorlint
-    - gofmt
-    - goimports
-    - revive
+    - gocritic
     - gosec
+    - intrange
     - misspell
     - nakedret
     - nilerr
+    - nolintlint
+    - revive
     - unconvert
     - unparam
-    - intrange
-    - whitespace
-    - gocritic
-    - copyloopvar
     - wastedassign
-    - nolintlint
-
-linters-settings:
-  govet:
-    enable:
-      - nilness
-      - sortslice
-      - unusedwrite
-  revive:
-    # minimal confidence for issues, default is 0.8
-    confidence: 0.0
+    - whitespace
+  settings:
+    staticcheck:
+      checks:
+        - SA*
+        - S1*
+    govet:
+      enable:
+        - nilness
+        - sortslice
+        - unusedwrite
+    revive:
+      # minimal confidence for issues, default is 0.8
+      confidence: 0
+      rules:
+        - name: unused-parameter
+          disabled: true
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
     rules:
-      - name: unused-parameter
-        disabled: true
+      - linters:
+          - gosec
+        path: pkg/common/peertracker/(peertracker_test|tracker_windows)\.go
+        text: 'G115: integer overflow conversion'
+        source: 'int32\(os\.Getpid\(\)\)|int32\(pid\)|uint32\(pid\)'
+      - linters:
+          - gosec
+        path: pkg/common/peertracker/uds_linux\.go
+        text: 'G115: integer overflow conversion'
+        source: 'GetsockoptUcred\(int\(fd\)'
+    paths:
+      - .*\.pb\.go
+      - testdata$
+      - test/mock
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - .*\.pb\.go
+      - testdata$
+      - test/mock
+      - third_party$
+      - builtin$
+      - examples$

@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"github.com/spiffe/spire/pkg/common/telemetry"
 	"golang.org/x/sys/unix"
 )
 
@@ -43,7 +42,7 @@ func newTracker(log logrus.FieldLogger) (*bsdTracker, error) {
 		ctx:         ctx,
 		kqfd:        kqfd,
 		watchedPIDs: make(map[int]chan struct{}),
-		log:         log.WithField(telemetry.Type, bsdType),
+		log:         log.WithField("type", bsdType),
 	}
 
 	go tracker.receiveKevents(kqfd)
@@ -87,7 +86,7 @@ func (b *bsdTracker) NewWatcher(info CallerInfo) (Watcher, error) {
 		done = make(chan struct{})
 		b.watchedPIDs[pid] = done
 	}
-	log := b.log.WithField(telemetry.PID, pid)
+	log := b.log.WithField("pid", pid)
 
 	return newBSDWatcher(info, done, log), nil
 }

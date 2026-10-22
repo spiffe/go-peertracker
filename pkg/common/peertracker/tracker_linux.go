@@ -10,7 +10,6 @@ import (
 	"sync"
 
 	"github.com/sirupsen/logrus"
-	"github.com/spiffe/spire/pkg/common/telemetry"
 	"golang.org/x/sys/unix"
 )
 
@@ -24,7 +23,7 @@ type linuxTracker struct {
 
 func newTracker(log logrus.FieldLogger) (*linuxTracker, error) {
 	return &linuxTracker{
-		log: log.WithField(telemetry.Type, linuxType),
+		log: log.WithField("type", linuxType),
 	}, nil
 }
 
@@ -67,11 +66,11 @@ func newLinuxWatcher(info CallerInfo, log logrus.FieldLogger) (*linuxWatcher, er
 	}
 
 	log = log.WithFields(logrus.Fields{
-		telemetry.CallerGID: info.GID,
-		telemetry.PID:       info.PID,
-		telemetry.Path:      procPath,
-		telemetry.CallerUID: info.UID,
-		telemetry.StartTime: starttime,
+		"caller_gid": info.GID,
+		"pid":        info.PID,
+		"path":       procPath,
+		"caller_uid": info.UID,
+		"start_time": starttime,
 	})
 
 	return &linuxWatcher{
@@ -116,7 +115,7 @@ func (l *linuxWatcher) IsAlive() error {
 		return errors.New("caller exit suspected due to failed readdirent")
 	}
 	if n < 0 {
-		l.log.WithField(telemetry.StatusCode, n).Warn("Caller exit suspected due to failed readdirent")
+		l.log.WithField("status_code", n).Warn("Caller exit suspected due to failed readdirent")
 		return fmt.Errorf("caller exit suspected due to failed readdirent: n=%d", n)
 	}
 
@@ -135,8 +134,8 @@ func (l *linuxWatcher) IsAlive() error {
 	}
 	if currentStarttime != l.starttime {
 		l.log.WithFields(logrus.Fields{
-			telemetry.ExpectStartTime:   l.starttime,
-			telemetry.ReceivedStartTime: currentStarttime,
+			"expect_start_time":   l.starttime,
+			"received_start_time": currentStarttime,
 		}).Warn("New process detected: process starttime does not match original caller")
 		return fmt.Errorf("new process detected: process starttime %v does not match original caller %v", currentStarttime, l.starttime)
 	}
@@ -152,15 +151,15 @@ func (l *linuxWatcher) IsAlive() error {
 	}
 	if stat.Uid != l.uid {
 		l.log.WithFields(logrus.Fields{
-			telemetry.ExpectUID:   l.uid,
-			telemetry.ReceivedUID: stat.Uid,
+			"expect_uid":   l.uid,
+			"received_uid": stat.Uid,
 		}).Warn("New process detected: process uid does not match original caller")
 		return fmt.Errorf("new process detected: process uid %v does not match original caller %v", stat.Uid, l.uid)
 	}
 	if stat.Gid != l.gid {
 		l.log.WithFields(logrus.Fields{
-			telemetry.ExpectGID:   l.gid,
-			telemetry.ReceivedGID: stat.Gid,
+			"expect_gid":   l.gid,
+			"received_gid": stat.Gid,
 		}).Warn("New process detected: process gid does not match original caller")
 		return fmt.Errorf("new process detected: process gid %v does not match original caller %v", stat.Gid, l.gid)
 	}

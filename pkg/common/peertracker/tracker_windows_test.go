@@ -8,7 +8,6 @@ import (
 
 	"github.com/sirupsen/logrus"
 	logtest "github.com/sirupsen/logrus/hooks/test"
-	"github.com/spiffe/spire/pkg/common/telemetry"
 	"github.com/spiffe/spire/test/spiretest"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/sys/windows"
@@ -82,7 +81,7 @@ func TestWindowsTracker(t *testing.T) {
 					Level:   logrus.WarnLevel,
 					Message: "Caller is no longer being watched",
 					Data: logrus.Fields{
-						telemetry.PID: "1000",
+						"pid": "1000",
 					},
 				},
 			},
@@ -111,7 +110,7 @@ func TestWindowsTracker(t *testing.T) {
 					Message: "Caller is not running anymore",
 					Data: logrus.Fields{
 						logrus.ErrorKey: "caller exit detected: exit code: 100",
-						telemetry.PID:   "1000",
+						"pid":           "1000",
 					},
 				},
 			},
@@ -131,7 +130,7 @@ func TestWindowsTracker(t *testing.T) {
 					Message: "Current process handle does not refer to the same original process: CompareObjectHandles failed",
 					Data: logrus.Fields{
 						logrus.ErrorKey: "compare object handles error",
-						telemetry.PID:   "1000",
+						"pid":           "1000",
 					},
 				},
 			},
@@ -150,7 +149,7 @@ func TestWindowsTracker(t *testing.T) {
 					Message: "Could not close process handle in liveness check",
 					Data: logrus.Fields{
 						logrus.ErrorKey: "close handle error",
-						telemetry.PID:   "1000",
+						"pid":           "1000",
 					},
 				},
 			},
