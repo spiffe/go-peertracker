@@ -25,7 +25,7 @@ help:
 	@echo "$(bold)Usage:$(reset) make $(cyan)<target>$(reset)"
 	@echo
 	@echo "$(bold)Build:$(reset)"
-	@echo "  $(cyan)build$(reset)                                 - build all SPIRE binaries (default)"
+	@echo "  $(cyan)build$(reset)                                 - build the library packages (default)"
 	@echo
 	@echo "$(bold)Test:$(reset)"
 	@echo "  $(cyan)test$(reset)                                  - run unit tests"
@@ -43,7 +43,7 @@ help:
 	@echo "  $(cyan)lint-md$(reset)                               - lint markdown files"
 	@echo
 	@echo "$(bold)Build, lint and test:$(reset)"
-	@echo "  $(cyan)all$(reset)                                   - build all SPIRE binaries, run linters and unit tests"
+	@echo "  $(cyan)all$(reset)                                   - build the library packages, run linters and unit tests"
 	@echo
 	@echo "$(bold)Docker image:$(reset)"
 	@echo "  $(cyan)images$(reset)                                - build all SPIRE Docker images"
@@ -255,7 +255,8 @@ endif
 #############################################################################
 
 .PHONY: build
-build: tidy $(addprefix bin/,$(binaries))
+build: | go-check
+	$(E)$(go_path) go build $(go_flags) ./...
 
 go_build := $(go_path) go build $(go_flags) -ldflags '$(go_ldflags)' -o
 
@@ -389,7 +390,6 @@ $(eval $(call windows_image_rule,oidc-discovery-provider-windows-image,oidc-disc
 .PHONY: tidy tidy-check lint lint-code
 tidy: | go-check
 	$(E)$(go_path) go mod tidy
-	$(E)cd proto/spire; $(go_path) go mod tidy
 
 tidy-check:
 ifneq ($(git_dirty),)
